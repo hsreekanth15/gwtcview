@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GW Events Sky Plot</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; }
+  #plot { width: 100%; height: 90vh; }
+</style>
+</head>
+<body>
+<h2>Gravitational Wave Events (Earth at center)</h2>
+<div id="plot"></div>
+
+<script>
+Papa.parse("GWTC.csv", {
+    download: true,
+    header: true,
+    dynamicTyping: true,
+    complete: function(results) {
+        const data = results.data.filter(d => d.ra && d.dec && d.luminosity_distance);
+        console.log("Loaded rows:", data.length, data); // debug
+
+        if(data.length === 0) {
+            alert("No valid rows loaded. Check CSV path or format.");
+            return;
+        }
+
+        const r = data.map(d => d.luminosity_distance);
+        const theta = data.map(d => (d.ra / (2*Math.PI)) * 360);
+        const text = data.map(d => `${d.Event}<br>Distance: ${d.luminosity_distance.toFixed(0)} Mpc`);
+
+        const trace = {
+            type: 'scatterpolar',
+            r: r,
+            theta: theta,
+            mode: 'markers',
+            marker: { size: 8, color: r, colorscale: 'Viridis', colorbar: { title: 'Distance (Mpc)' } },
+            text: text,
+            hoverinfo: 'text'
+        };
+
+        const layout = {
+            paper_bgcolor: '#fff',
+            polar: { radialaxis: { title: 'Luminosity Distance (Mpc)' } },
+            showlegend: false,
+            title: 'Gravitational Wave Events'
+        };
+
+        Plotly.newPlot('plot', [trace], layout, {responsive: true});
+    }
+});
+</script>
+
+</body>
+</html>
+
