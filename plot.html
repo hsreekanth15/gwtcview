@@ -12,7 +12,8 @@
 </head>
 <body>
 <h2>Gravitational Wave Events (Earth at center)</h2>
-<div id="plot"></div>
+<div id="plot-ra"></div>
+<div id="plot-dec"</div>   
 
 <script>
 Papa.parse("catalog/gwtc4p0.csv", {
@@ -30,6 +31,7 @@ Papa.parse("catalog/gwtc4p0.csv", {
 
         const r = data.map(d => d.luminosity_distance);
         const theta = data.map(d => (d.ra / (2*Math.PI)) * 360);
+        const dec = data.map(d => (d.dec/(2*Math.PI)) * 360);
         const text = data.map(d => `${d.Event}<br>Distance: ${d.luminosity_distance.toFixed(0)} Mpc`);
 
         const trace = {
@@ -42,6 +44,16 @@ Papa.parse("catalog/gwtc4p0.csv", {
             hoverinfo: 'text'
         };
 
+        const trace1 = {
+            type: 'scatterpolar',
+            r: r,
+            theta: dec,
+            mode: 'markers',
+            marker: { size: 8, color: r, colorscale: 'Plasma', colorbar: { title: 'Distance (Mpc)' } },
+            text: text,
+            hoverinfo: 'text'
+        };
+
         const layout = {
             paper_bgcolor: '#fff',
             polar: { radialaxis: { title: 'Luminosity Distance (Mpc)' } },
@@ -49,7 +61,9 @@ Papa.parse("catalog/gwtc4p0.csv", {
             title: 'Gravitational Wave Events'
         };
 
-        Plotly.newPlot('plot', [trace], layout, {responsive: true});
+        Plotly.newPlot('plot-ra', [trace], layout, {responsive: true});
+      
+        Plotly.newPlot('plot-dec', [trace1], layout, {responsive: true});
     }
 });
 </script>
